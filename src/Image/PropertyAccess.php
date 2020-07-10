@@ -18,7 +18,9 @@ use WebChemistry;
  * @property string $absoluteName
  * @property-read string $nameWithPrefix
  */
-abstract class PropertyAccess extends Nette\Object {
+abstract class PropertyAccess {
+
+	use Nette\SmartObject;
 
 	const PREFIX_SEP = '_._';
 

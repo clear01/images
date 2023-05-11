@@ -104,9 +104,8 @@ class Upload extends UploadControl {
 			$this->delete = TRUE;
 		}
 
-		$form = $this->getForm();
-		if ($form->isValid()) {
-			$form->onSubmit[] = [$this, 'errorCallback'];
+		if (count($this->getErrors()) === 0) {
+			$this->getForm()->onSubmit[] = [$this, 'errorCallback'];
 			$this->successCallback();
 		}
 	}

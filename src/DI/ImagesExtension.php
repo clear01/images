@@ -145,9 +145,7 @@ class ImagesExtension extends Nette\DI\CompilerExtension {
 			$init->addBody(UploadControl::class . '::register();');
 			$init->addBody(AdvancedUploadControl::class . '::register();');
 		}
-		if ($config['registerType'] && class_exists(Type::class)) {
-			$init->addBody(Type::class . '::addType(?, ?);', [ImageType::TYPE, ImageType::class]);
-		}
+
 	}
 
 }

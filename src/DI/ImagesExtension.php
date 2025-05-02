@@ -116,6 +116,7 @@ class ImagesExtension extends Nette\DI\CompilerExtension {
 
 	public function beforeCompile() {
 		$builder = $this->getContainerBuilder();
+        $config = $this->parseConfig();
 
 		$def = $builder->getDefinition('nette.latteFactory');
 		$def = DIHelper::fixFactoryDefinition($def);
@@ -124,12 +125,16 @@ class ImagesExtension extends Nette\DI\CompilerExtension {
 			->addSetup('addProvider', ['imageStorageFacade', $builder->getDefinition($this->prefix('template.facade'))]);
 
 		// kdyby registration
-		if (class_exists(Connection::class)) {
-			foreach ($builder->findByTag(OrmExtension::TAG_CONNECTION) as $name => $_) {
-				$builder->getDefinition($name)
-					->addSetup('?->getDatabasePlatform()->registerDoctrineTypeMapping(?, ?)', ['@self', 'db_' . ImageType::TYPE, ImageType::TYPE]);
-			}
-		}
+        if ($config['registerType']){
+            foreach ($builder->findByType(Connection::class) as $name => $_) {
+                /** @var Nette\DI\Definitions\ServiceDefinition $conn */
+                $conn = $builder->getDefinition($name);
+                $conn->addSetup('if (!' . Type::class . '::hasType(?)) { ' . Type::class . '::addType(?, ?); }', [
+                    ImageType::TYPE, ImageType::TYPE, ImageType::class,
+                ]);
+                $conn->addSetup('?->getDatabasePlatform()->registerDoctrineTypeMapping(?, ?)', ['@self', 'db_' . ImageType::TYPE, ImageType::TYPE]);
+            }
+        }
 	}
 
 	public function afterCompile(Nette\PhpGenerator\ClassType $class) {

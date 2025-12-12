@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace WebChemistry\Images\DI;
 
@@ -22,11 +22,12 @@ use WebChemistry\Images\Resources\Meta\IResourceMetaFactory;
 use WebChemistry\Images\Resources\Meta\ResourceMetaFactory;
 use WebChemistry\Images\Storages\LocalStorage;
 use WebChemistry\Images\Template\ImageFacade;
-use WebChemistry\Images\Template\Macros;
+use WebChemistry\Images\Template\LatteExtension;
 
-class ImagesExtension extends Nette\DI\CompilerExtension {
-
-	public function getConfigSchema(): Nette\Schema\Schema {
+class ImagesExtension extends Nette\DI\CompilerExtension
+{
+	public function getConfigSchema(): Nette\Schema\Schema
+	{
 		$parameters = $this->getContainerBuilder()->parameters;
 
 		return Nette\Schema\Expect::structure([
@@ -45,7 +46,8 @@ class ImagesExtension extends Nette\DI\CompilerExtension {
 		]);
 	}
 
-	public function loadConfiguration() {
+	public function loadConfiguration()
+	{
 		$builder = $this->getContainerBuilder();
 		/** @var \stdClass $config */
 		$config = $this->getConfig();
@@ -99,17 +101,17 @@ class ImagesExtension extends Nette\DI\CompilerExtension {
 			);
 	}
 
-	public function beforeCompile() {
+	public function beforeCompile()
+	{
 		$builder = $this->getContainerBuilder();
 		/** @var \stdClass $config */
 		$config = $this->getConfig();
 
-		$def = $builder->getDefinition('nette.latteFactory');
-		/** @var Nette\DI\ServiceDefinition $def */
-		$def = DIHelper::fixFactoryDefinition($def);
+		$extension = $builder->addDefinition($this->prefix('latteExtension'))->setType(LatteExtension::class);
 
-		$def->addSetup(Macros::class . '::install(?->getCompiler())', ['@self'])
-			->addSetup('addProvider', ['imageStorageFacade', $builder->getDefinition($this->prefix('template.facade'))]);
+		$builder->getDefinition('latte.latteFactory')
+			->getResultDefinition()
+			->addSetup('addExtension', [$extension]);
 
 		// doctrine registration
 		if ($config->registerType) {
@@ -124,7 +126,8 @@ class ImagesExtension extends Nette\DI\CompilerExtension {
 		}
 	}
 
-	public function afterCompile(Nette\PhpGenerator\ClassType $class) {
+	public function afterCompile(Nette\PhpGenerator\ClassType $class)
+	{
 		/** @var \stdClass $config */
 		$config = $this->getConfig();
 		$init = $class->getMethods()['initialize'];
@@ -134,5 +137,4 @@ class ImagesExtension extends Nette\DI\CompilerExtension {
 			$init->addBody(AdvancedUploadControl::class . '::register();');
 		}
 	}
-
 }

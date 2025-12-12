@@ -53,7 +53,7 @@ class UploadControl extends Forms\Controls\UploadControl {
 	 * @return null|UploadResource
 	 * @throws \WebChemistry\Images\Resources\ResourceException
 	 */
-	public function getValue(): ?UploadResource {
+	public function getValue(): \Nette\Http\FileUpload|array|null {
 		if (!$this->value) {
 			return null;
 		}

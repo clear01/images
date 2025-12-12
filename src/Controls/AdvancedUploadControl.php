@@ -7,6 +7,7 @@ use Nette\Application\UI\Form;
 use Nette\ComponentModel\Container;
 use Nette\Forms;
 use Nette\Utils\Html;
+use Stringable;
 use WebChemistry\Images\IImageStorage;
 use WebChemistry\Images\Resources\IFileResource;
 use WebChemistry\Images\Resources\StateResource;
@@ -99,7 +100,7 @@ class AdvancedUploadControl extends Forms\Controls\UploadControl {
 		return $this;
 	}
 
-	public function setRequired($value = true) {
+	public function setRequired(Stringable|string|bool $value = true): static {
 		$this->required = $value;
 
 		return $this;
@@ -129,7 +130,7 @@ class AdvancedUploadControl extends Forms\Controls\UploadControl {
 		return $this->value && $this->value->isOk() && $this->value->isImage();
 	}
 
-	public function getValue(): StateResource {
+	public function getValue(): \Nette\Http\FileUpload|array|null {
 		$upload = null;
 		if ($this->isValueOk()) {
 			$upload = new UploadResource($this->value);
